@@ -2,8 +2,8 @@
 // listen for auth status changes
 auth.onAuthStateChanged(user => {
   if (user) {
-    var ver = user.emailVerified;
-    db.collection('notes').onSnapshot(snapshot => {
+    document.getElementById("name").innerHTML = "Welcome -" + user.email + "";
+    db.collection('reviews').where("user_Id", "==", user.uid).onSnapshot(snapshot => {
       setupGuides(snapshot.docs);
     }, err => console.log(err.message));
   } else {
@@ -12,18 +12,20 @@ auth.onAuthStateChanged(user => {
 });
 
 
-
 // sList all notes
 const guideList = document.querySelector('.guides');
 function setupGuides(data) {
   if (data.length) {
     let html = '';
     data.forEach(doc => {
+      const id = doc.id;
       const post = doc.data();
       const li = `
           <li>
-            <div class="collapsible-header  grey lighten-4"> ${post.title} | ${post.Module}</div>
-            <div class="collapsible-body  white">${post.content}</div>
+            <div class="collapsible-header  grey lighten-4"> ${post.title}</div>
+            <div class="collapsible-body  white">${post.content}<button value =${id} onclick="del_post(this.value)" class="contact100-form-btn" id="delete_post">
+						Delete
+					</button>
           </li>
         `;
       html += li;
@@ -35,29 +37,16 @@ function setupGuides(data) {
   }
 }
 
+// delete
+function del_post(id) {
+  db.collection('reviews').doc(id).delete().then(function () {
+    console.log("Document successfully deleted!");
+  }).catch(
+    function (error) {
+      console.error("Error removing document: ", error);
+    });
 
-
-
-
-//Create Notes
-const createForm = document.querySelector('#create-note');
-createForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  var e = document.getElementById("option");
-  var module = e.options[e.selectedIndex].value;
-  db.collection('notes').add({
-    title: createForm.title.value,
-    Module: module,
-    User: auth.currentUser.uid,
-    content: createForm.content.value
-  }).then(() => {
-    // close the create modal & reset form
-    createForm.reset();
-  }).catch(err => {
-    console.log(err.message);
-  });
-
-});
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   var elems = document.querySelectorAll('.collapsible');
