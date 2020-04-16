@@ -14,7 +14,8 @@ auth.onAuthStateChanged(user => {
         e.preventDefault();
         db.collection('reviews').add({
           title: createForm.title.value,
-          user_Id: auth.currentUser.email,
+          user_email: auth.currentUser.email,
+          userid: auth.currentUser.uid,
           content: createForm.content.value
         }).then(() => {
           // close the create modal & reset form
@@ -46,7 +47,7 @@ function setupGuides(data) {
       const li = `
           <li>
             <div class="collapsible-header  grey lighten-4"> ${post.title}</div>
-            <div class="collapsible-body  white">${post.content}<br> By ${post.user_Id}</div>
+            <div class="collapsible-body  white">${post.content}<br> By ${post.user_email}</div>
           </li>
         `;
       html += li;

@@ -4,7 +4,7 @@ auth.onAuthStateChanged(user => {
   if (user) {
     if(user.emailVerified){
       document.getElementById("name").innerHTML = "Welcome -" + user.email + "";
-      db.collection('reviews').where("user_Id", "==", user.uid).onSnapshot(snapshot => {
+      db.collection('reviews').where("user_email", "==", user.email).onSnapshot(snapshot => {
         setupGuides(snapshot.docs);
       }, err => console.log(err.message));
     }
