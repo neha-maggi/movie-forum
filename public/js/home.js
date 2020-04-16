@@ -3,9 +3,32 @@
 auth.onAuthStateChanged(user => {
   if (user) {
     var ver = user.emailVerified;
-    db.collection('reviews').onSnapshot(snapshot => {
-      setupGuides(snapshot.docs);
-    }, err => console.log(err.message));
+    if (ver) {
+      db.collection('reviews').onSnapshot(snapshot => {
+        setupGuides(snapshot.docs);
+      }, err => console.log(err.message));
+
+      //Create Notes
+      const createForm = document.querySelector('#create-note');
+      createForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        db.collection('reviews').add({
+          title: createForm.title.value,
+          user_Id: auth.currentUser.email,
+          content: createForm.content.value
+        }).then(() => {
+          // close the create modal & reset form
+          createForm.reset();
+        }).catch(err => {
+          console.log(err.message);
+        });
+
+      });
+
+    }
+    else {
+      window.location = 'index.html';
+    }
   } else {
     window.location = 'index.html';
   }
@@ -23,7 +46,7 @@ function setupGuides(data) {
       const li = `
           <li>
             <div class="collapsible-header  grey lighten-4"> ${post.title}</div>
-            <div class="collapsible-body  white">${post.content}</div>
+            <div class="collapsible-body  white">${post.content}<br> By ${post.user_Id}</div>
           </li>
         `;
       html += li;
@@ -39,22 +62,6 @@ function setupGuides(data) {
 
 
 
-//Create Notes
-const createForm = document.querySelector('#create-note');
-createForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  db.collection('reviews').add({
-    title: createForm.title.value,
-    user_Id: auth.currentUser.uid,
-    content: createForm.content.value
-  }).then(() => {
-    // close the create modal & reset form
-    createForm.reset();
-  }).catch(err => {
-    console.log(err.message);
-  });
-
-});
 
 document.addEventListener('DOMContentLoaded', function () {
   var elems = document.querySelectorAll('.collapsible');

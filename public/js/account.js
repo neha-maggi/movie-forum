@@ -2,15 +2,20 @@
 // listen for auth status changes
 auth.onAuthStateChanged(user => {
   if (user) {
-    document.getElementById("name").innerHTML = "Welcome -" + user.email + "";
-    db.collection('reviews').where("user_Id", "==", user.uid).onSnapshot(snapshot => {
-      setupGuides(snapshot.docs);
-    }, err => console.log(err.message));
+    if(user.emailVerified){
+      document.getElementById("name").innerHTML = "Welcome -" + user.email + "";
+      db.collection('reviews').where("user_Id", "==", user.uid).onSnapshot(snapshot => {
+        setupGuides(snapshot.docs);
+      }, err => console.log(err.message));
+    }
+    else{
+      indow.location = 'index.html';
+    }
+   
   } else {
     window.location = 'index.html';
   }
 });
-
 
 // sList all notes
 const guideList = document.querySelector('.guides');
@@ -23,7 +28,7 @@ function setupGuides(data) {
       const li = `
           <li>
             <div class="collapsible-header  grey lighten-4"> ${post.title}</div>
-            <div class="collapsible-body  white">${post.content}<button value =${id} onclick="del_post(this.value)" class="contact100-form-btn" id="delete_post">
+            <div class="collapsible-body  white">${post.content} <button value =${id} onclick="del_post(this.value)" class="contact100-form-btn" id="delete_post">
 						Delete
 					</button>
           </li>
